@@ -1,2 +1,4 @@
 lumibot
 alpaca-trade-api
+torch
+transformers
