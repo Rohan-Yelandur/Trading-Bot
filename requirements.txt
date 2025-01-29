@@ -1,1 +1,2 @@
 lumibot
+alpaca-trade-api
