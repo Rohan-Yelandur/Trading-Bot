@@ -1,11 +1,14 @@
 # Trading-Bot
 
 ## Overview
+- **Real-time News Analysis:** Fetches the latest news articles using the Alpaca API.
+- **Sentiment Analysis:** Uses the FinBERT model to determine the sentiment of news articles.
+- **Automated Trading:** Makes buy/sell decisions based on sentiment analysis.
+- **Backtesting:** Uses historical data from Yahoo to test the performance of trading strategies.
 
-
+Change values at the top of tradingbot.py to customize strategy nad backtesting.
 
 ## Setup
-
 1. **Download repository:**
     ```sh
     git clone https://github.com/Rohan-Yelandur/Trading-Bot.git
@@ -13,7 +16,7 @@
 
 2. **Create virtual environment (Windows):**
     ```sh
-    python -m venv environment_name
+    python -m venv environment_namevalues
     ```
 
 3. **Activate virtual environment:**
@@ -33,4 +36,6 @@
     BASE_URL=alpaca_url
 
 6. **Run the bot**
-Run the bot `python tradingbot.py`
+    ```sh
+    python tradingbot.py
+    ```

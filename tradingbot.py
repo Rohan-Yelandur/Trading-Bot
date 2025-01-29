@@ -14,12 +14,16 @@ API_SECRET = os.getenv('API_SECRET')
 BASE_URL = os.getenv('BASE_URL')
 ALPACA_CREDS = {'API_KEY':API_KEY, 'API_SECRET': API_SECRET, 'PAPER': True}
 
-start_date = datetime(2023,12,15) # Start of trading timeframe
+# ----- Values to customize trading -----
+start_date = datetime(2020,1,1) # Start of trading timeframe
 end_date = datetime(2023,12,31) # End of trading timeframe
 symbol = 'SPY' # Symbol for stock or ETF to trade
 cash_at_risk = .5 # Percentage of cash to risk on each trade
 days_prior = 3 # Number of days prior to the current date to get news
 sleeptime = '24H'# Minimum time between trades
+take_profit_multiplier = 0.2 # Multiplier to determine the take profit price (e.g., 20% above the last price)
+stop_loss_multiplier = 0.05 # Multiplier to determine the stop loss price (e.g., 5% below the last price)
+probability_threshold = 0.999  # Minimum confidence level of sentiment prediction to trigger a trade
 
 class MLTrader(Strategy): 
     def initialize(self, symbol=symbol, cash_at_risk=cash_at_risk, sleeptime=sleeptime): 
@@ -52,7 +56,7 @@ class MLTrader(Strategy):
         probability, sentiment = self.get_sentiment()
 
         if cash > last_price: 
-            if sentiment == 'positive' and probability > .999: 
+            if sentiment == 'positive' and probability > probability_threshold: 
                 if self.last_trade == 'sell': 
                     self.sell_all() 
                 order = self.create_order(
@@ -60,12 +64,14 @@ class MLTrader(Strategy):
                     quantity, 
                     'buy', 
                     type='bracket', 
-                    take_profit_price=last_price*1.20, 
-                    stop_loss_price=last_price*.95
+
+                    # Price at which bot will sell the asset to lock in profits
+                    take_profit_price=last_price*(1+take_profit_multiplier),
+                    stop_loss_price=last_price*(1-stop_loss_multiplier)
                 )
                 self.submit_order(order) 
                 self.last_trade = 'buy'
-            elif sentiment == 'negative' and probability > .999: 
+            elif sentiment == 'negative' and probability > probability_threshold: 
                 if self.last_trade == 'buy': 
                     self.sell_all() 
                 order = self.create_order(
@@ -73,8 +79,10 @@ class MLTrader(Strategy):
                     quantity, 
                     'sell', 
                     type='bracket', 
-                    take_profit_price=last_price*.8, 
-                    stop_loss_price=last_price*1.05
+
+                    # Price at which bot will sell the asset to lock in profits
+                    take_profit_price=last_price*(1-take_profit_multiplier), 
+                    stop_loss_price=last_price*(1+stop_loss_multiplier)
                 )
                 self.submit_order(order) 
                 self.last_trade = 'sell'
